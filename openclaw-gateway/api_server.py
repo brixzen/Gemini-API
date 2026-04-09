@@ -32,6 +32,10 @@ try:
     from .models import ResponseRequest
     from .handlers import InputProcessor, ModelRouter, SessionManager, OutputHandler
 except ImportError:
+    # Add current directory to path for absolute imports
+    current_dir = Path(__file__).parent
+    if str(current_dir) not in sys.path:
+        sys.path.insert(0, str(current_dir))
     from config import config
     from models import ResponseRequest
     from handlers import InputProcessor, ModelRouter, SessionManager, OutputHandler

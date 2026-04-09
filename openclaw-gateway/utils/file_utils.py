@@ -13,8 +13,12 @@ try:
     from ..config import config
     from .validators import validate_url, is_private_ip, validate_url_allowlist
 except ImportError:
+    import sys
+    from pathlib import Path
+    # Add parent directory to path
+    sys.path.insert(0, str(Path(__file__).parent.parent))
     from config import config
-    from validators import validate_url, is_private_ip, validate_url_allowlist
+    from utils.validators import validate_url, is_private_ip, validate_url_allowlist
 
 
 class FileDownloadError(Exception):
