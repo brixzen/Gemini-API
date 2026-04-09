@@ -86,13 +86,25 @@ if cookies_json:
                 cookies_data = json.load(f)
             
             print("✅ cookies.json is valid JSON")
-            print(f"Keys in file: {list(cookies_data.keys())}")
+            
+            # Handle browser export format (array)
+            if isinstance(cookies_data, list):
+                print(f"Format: Browser export (array of {len(cookies_data)} cookies)")
+                cookies = {c.get("name"): c.get("value") for c in cookies_data if isinstance(c, dict)}
+            # Handle dict formats
+            elif isinstance(cookies_data, dict):
+                print(f"Format: Dictionary")
+                print(f"Keys: {list(cookies_data.keys())}")
+                cookies = cookies_data.get("cookies", cookies_data)
+            else:
+                print(f"❌ Unknown format: {type(cookies_data)}")
+                cookies = {}
             
             # Check for required cookies
             required_cookies = ["__Secure-1PSID", "__Secure-1PSIDTS"]
             for cookie in required_cookies:
-                if cookie in cookies_data:
-                    value = cookies_data[cookie]
+                if cookie in cookies:
+                    value = cookies[cookie]
                     print(f"✅ {cookie}: {value[:15]}... (length: {len(value)})")
                 else:
                     print(f"❌ {cookie}: MISSING")
