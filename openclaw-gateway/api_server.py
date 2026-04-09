@@ -65,12 +65,8 @@ class GeminiClientManager:
             try:
                 cookies_data = json.loads(Path(config.GEMINI_COOKIES_JSON).read_text())
                 if isinstance(cookies_data, dict):
-                    # Support both formats:
-                    # 1. Flat: {"__Secure-1PSID": "...", "__Secure-1PSIDTS": "..."}
-                    # 2. Nested: {"cookies": {"__Secure-1PSID": "...", "__Secure-1PSIDTS": "..."}}
-                    cookies = cookies_data.get("cookies", cookies_data)
-                    psid = cookies.get("__Secure-1PSID") or psid
-                    psidts = cookies.get("__Secure-1PSIDTS") or psidts
+                    psid = cookies_data.get("__Secure-1PSID") or psid
+                    psidts = cookies_data.get("__Secure-1PSIDTS") or psidts
             except Exception as e:
                 logger.warning(f"Failed to load cookies from JSON: {e}")
         
