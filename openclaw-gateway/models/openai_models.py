@@ -9,12 +9,16 @@ class ChatMessage(BaseModel):
     role: str = Field(..., description="Role: system, user, or assistant")
     content: Union[str, List[Dict[str, Any]]] = Field(..., description="Message content")
     name: Optional[str] = Field(None, description="Optional name of the participant")
+    
+    class Config:
+        # Allow arbitrary types for content flexibility
+        arbitrary_types_allowed = True
 
 
 class ChatCompletionRequest(BaseModel):
     """OpenAI chat completion request"""
     model: str = Field(..., description="Model to use")
-    messages: List[ChatMessage] = Field(..., description="List of messages")
+    messages: List[Union[ChatMessage, Dict[str, Any]]] = Field(..., description="List of messages")
     temperature: Optional[float] = Field(1.0, ge=0, le=2, description="Sampling temperature")
     top_p: Optional[float] = Field(1.0, ge=0, le=1, description="Nucleus sampling")
     n: Optional[int] = Field(1, description="Number of completions")
@@ -25,6 +29,11 @@ class ChatCompletionRequest(BaseModel):
     frequency_penalty: Optional[float] = Field(0, ge=-2, le=2)
     logit_bias: Optional[Dict[str, float]] = Field(None)
     user: Optional[str] = Field(None, description="User identifier")
+    
+    class Config:
+        # Allow extra fields and arbitrary types
+        extra = "allow"
+        arbitrary_types_allowed = True
 
 
 class ChatCompletionChoice(BaseModel):

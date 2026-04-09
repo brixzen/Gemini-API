@@ -21,9 +21,12 @@ class OpenAIAdapter:
     """Convert between OpenAI and internal formats"""
     
     @staticmethod
-    def messages_to_prompt(messages: List[ChatMessage]) -> Tuple[str, List[Any]]:
+    def messages_to_prompt(messages: List[Any]) -> Tuple[str, List[Any]]:
         """
         Convert OpenAI messages to Gemini prompt format
+        
+        Args:
+            messages: List of ChatMessage objects or dicts
         
         Returns:
             Tuple of (text_prompt, files_list)
@@ -32,20 +35,29 @@ class OpenAIAdapter:
         files = []
         
         for msg in messages:
+            # Convert dict to ChatMessage-like object if needed
+            if isinstance(msg, dict):
+                role = msg.get("role", "user")
+                content = msg.get("content", "")
+                name = msg.get("name")
+            else:
+                role = msg.role
+                content = msg.content
+                name = msg.name if hasattr(msg, "name") else None
             role_prefix = ""
-            if msg.role == "system":
+            if role == "system":
                 role_prefix = "System: "
-            elif msg.role == "user":
+            elif role == "user":
                 role_prefix = "User: "
-            elif msg.role == "assistant":
+            elif role == "assistant":
                 role_prefix = "Assistant: "
             
             # Handle content - can be string or list of content parts
-            if isinstance(msg.content, str):
-                prompt_parts.append(f"{role_prefix}{msg.content}")
-            elif isinstance(msg.content, list):
+            if isinstance(content, str):
+                prompt_parts.append(f"{role_prefix}{content}")
+            elif isinstance(content, list):
                 # Multi-modal content (text + images)
-                for part in msg.content:
+                for part in content:
                     if isinstance(part, dict):
                         if part.get("type") == "text":
                             prompt_parts.append(f"{role_prefix}{part.get('text', '')}")

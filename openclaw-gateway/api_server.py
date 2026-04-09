@@ -388,10 +388,10 @@ async def completions(
         # Convert to chat format
         prompt_text = request.prompt if isinstance(request.prompt, str) else "\n".join(request.prompt)
         
-        # Create a simple chat request
+        # Create a simple chat request with proper ChatMessage objects
         chat_request = ChatCompletionRequest(
             model=request.model,
-            messages=[{"role": "user", "content": prompt_text}],
+            messages=[ChatMessage(role="user", content=prompt_text)],
             temperature=request.temperature,
             max_tokens=request.max_tokens,
             top_p=request.top_p,
