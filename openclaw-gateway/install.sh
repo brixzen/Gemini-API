@@ -47,11 +47,15 @@ echo ""
 
 # Install parent project dependencies
 echo "Installing parent Gemini-API dependencies..."
-if [ -f "../requirements.txt" ]; then
-    pip install -r ../requirements.txt
-    echo "✅ Parent dependencies installed"
+if [ -f "../pyproject.toml" ]; then
+    # Install parent project in editable mode
+    pip install -e ..
+    echo "✅ Parent Gemini-API installed"
 else
-    echo "⚠️  Warning: Parent requirements.txt not found, skipping..."
+    echo "⚠️  Warning: Parent pyproject.toml not found"
+    echo "Installing core dependencies manually..."
+    pip install 'curl-cffi>=0.7.2' 'loguru>=0.7.3' 'orjson>=3.11.7' 'pydantic>=2.10.5'
+    echo "✅ Core dependencies installed"
 fi
 echo ""
 
