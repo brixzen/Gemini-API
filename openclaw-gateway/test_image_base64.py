@@ -77,7 +77,7 @@ def test_simple_url():
     """Test with a simple, reliable public image URL"""
     print("\nTesting with public image URL...")
     
-    # Use a very simple, reliable URL (placeholder service)
+    # Use a real, accessible image URL
     response = requests.post(
         f"{BASE_URL}/chat/completions",
         json={
@@ -85,11 +85,11 @@ def test_simple_url():
             "messages": [{
                 "role": "user",
                 "content": [
-                    {"type": "text", "text": "What do you see in this image?"},
+                    {"type": "text", "text": "What do you see in this image? Describe it briefly."},
                     {
                         "type": "image_url",
                         "image_url": {
-                            "url": "https://via.placeholder.com/150/FF0000/FFFFFF?text=Test"
+                            "url": "https://brixzen.com/assets/front/images/slider-bg.jpg"
                         }
                     }
                 ]

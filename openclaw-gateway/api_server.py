@@ -263,9 +263,12 @@ async def chat_completions(
         response_id = f"chatcmpl-{uuid.uuid4().hex[:16]}"
         created_timestamp = int(datetime.now().timestamp())
         
-        # Convert OpenAI request directly to Gemini format
-        # This bypasses InputProcessor and passes URLs/BytesIO directly to Gemini client
-        prompt, files = OpenAIAdapter.openai_to_gemini_files(request)
+        # Convert OpenAI request to internal format
+        internal_request = OpenAIAdapter.openai_to_internal(request)
+        
+        # Process inputs (downloads URLs, decodes base64, saves to temp files)
+        input_processor = InputProcessor()
+        prompt, files = await input_processor.process_request(internal_request)
         
         logger.debug(f"Prompt length: {len(prompt) if prompt else 0}")
         logger.debug(f"Files count: {len(files)}")
