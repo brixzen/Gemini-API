@@ -270,6 +270,9 @@ async def chat_completions(
         input_processor = InputProcessor()
         prompt, files = await input_processor.process_request(internal_request)
         
+        logger.debug(f"Processed prompt length: {len(prompt) if prompt else 0}")
+        logger.debug(f"Processed files count: {len(files)}")
+        
         if not prompt:
             raise HTTPException(status_code=400, detail="Empty prompt")
         

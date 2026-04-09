@@ -92,6 +92,14 @@ class OpenAIAdapter:
         # Convert messages to prompt
         prompt, files = OpenAIAdapter.messages_to_prompt(request.messages)
         
+        print(f"[DEBUG] Extracted prompt: {prompt[:100] if prompt else 'None'}...")
+        print(f"[DEBUG] Extracted files count: {len(files)}")
+        for i, f in enumerate(files):
+            if isinstance(f, str):
+                print(f"[DEBUG] File {i}: URL - {f[:50]}...")
+            elif isinstance(f, dict):
+                print(f"[DEBUG] File {i}: Base64 - mime={f.get('mime_type')}, data_len={len(f.get('data', ''))}")
+        
         # Build input list
         input_items = []
         
@@ -115,6 +123,8 @@ class OpenAIAdapter:
                         media_type=file.get("mime_type", "image/jpeg")
                     )
                 ))
+        
+        print(f"[DEBUG] Created {len(input_items)} input items")
         
         # Create internal request
         return ResponseRequest(
