@@ -1,17 +1,17 @@
 # Core API dependencies
-fastapi>=0.115.0
-uvicorn[standard]>=0.32.0
-pydantic>=2.12.5
-python-multipart>=0.0.9
-
-# Environment variable loading
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+pydantic>=2.0.0
+python-multipart>=0.0.6
+aiofiles>=23.0.0
 python-dotenv>=1.0.0
+requests>=2.31.0
 
 # HTTP client for file downloads
 aiohttp>=3.10.0
 
 # File handling
-aiofiles>=24.1.0
+aiofiles>=23.0.0
 
 # Already included in parent gemini-webapi
 # curl-cffi~=0.15.0
