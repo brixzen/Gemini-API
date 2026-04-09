@@ -365,9 +365,24 @@ async def chat_completions(
     except GeminiError as e:
         logger.error(f"Gemini error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+    except HTTPException:
+        raise
     except Exception as e:
-        logger.error(f"Error in chat completions: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        error_msg = str(e)
+        logger.error(f"Error in chat completions: {error_msg}")
+        
+        # Provide more helpful error messages
+        if "403" in error_msg or "forbidden" in error_msg.lower():
+            raise HTTPException(
+                status_code=400, 
+                detail=f"Image URL access denied (HTTP 403). The image host may be blocking requests. Try using a different image URL or base64 encoding: {error_msg}"
+            )
+        elif "404" in error_msg:
+            raise HTTPException(status_code=400, detail=f"Image not found (HTTP 404): {error_msg}")
+        elif "downloading" in error_msg.lower():
+            raise HTTPException(status_code=400, detail=f"Failed to download image: {error_msg}")
+        else:
+            raise HTTPException(status_code=500, detail=error_msg)
 
 
 @app.post("/v1/completions")

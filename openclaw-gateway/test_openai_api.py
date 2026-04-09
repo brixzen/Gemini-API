@@ -61,6 +61,7 @@ def test_chat_streaming():
 def test_chat_with_image():
     """Test chat with image URL"""
     print("Testing chat with image...")
+    # Use a more reliable image URL (GitHub raw content)
     response = requests.post(
         f"{BASE_URL}/chat/completions",
         json={
@@ -68,11 +69,11 @@ def test_chat_with_image():
             "messages": [{
                 "role": "user",
                 "content": [
-                    {"type": "text", "text": "What's in this image?"},
+                    {"type": "text", "text": "What's in this image? Describe it briefly."},
                     {
                         "type": "image_url",
                         "image_url": {
-                            "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Gfp-wisconsin-madison-the-nature-boardwalk.jpg/2560px-Gfp-wisconsin-madison-the-nature-boardwalk.jpg"
+                            "url": "https://raw.githubusercontent.com/googlesamples/mediapipe/main/examples/object_detection/android/app/src/main/assets/cat.jpg"
                         }
                     }
                 ]
@@ -84,7 +85,8 @@ def test_chat_with_image():
         result = response.json()
         print(f"Response: {result['choices'][0]['message']['content'][:200]}...")
     else:
-        print(response.text)
+        print(f"Error: {response.text}")
+        print("Note: Image URL tests may fail due to network restrictions or URL access issues.")
     print()
 
 def test_legacy_completion():
