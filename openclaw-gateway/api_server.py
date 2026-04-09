@@ -345,45 +345,29 @@ async def create_response(
 # ============================================================================
 
 def main():
-    """Run the API server"""
+    """Main entry point"""
     import argparse
     
-    parser = argparse.ArgumentParser(
-        description="Gemini-OpenClaw Gateway API Server"
-    )
-    parser.add_argument(
-        "--host",
-        default=config.API_HOST,
-        help=f"Host to bind (default: {config.API_HOST})"
-    )
-    parser.add_argument(
-        "--port",
-        type=int,
-        default=config.API_PORT,
-        help=f"Port to bind (default: {config.API_PORT})"
-    )
-    parser.add_argument(
-        "--reload",
-        action="store_true",
-        help="Enable auto-reload for development"
-    )
-    parser.add_argument(
-        "--workers",
-        type=int,
-        default=1,
-        help="Number of worker processes (default: 1)"
-    )
+    parser = argparse.ArgumentParser(description="Gemini-OpenClaw Gateway")
+    parser.add_argument("--host", default=config.API_HOST, help="Host to bind to")
+    parser.add_argument("--port", type=int, default=config.API_PORT, help="Port to bind to")
+    parser.add_argument("--reload", action="store_true", help="Enable auto-reload")
+    parser.add_argument("--log-level", default=config.LOG_LEVEL.lower(), help="Log level")
     
     args = parser.parse_args()
     
-    # Run server
+    # Set log level
+    set_log_level(args.log_level.upper())
+    
+    logger.info(f"Starting Gemini-OpenClaw Gateway on {args.host}:{args.port}")
+    
+    # Run uvicorn with the app instance directly (not as a string)
     uvicorn.run(
-        "openclaw-gateway.api_server:app",
+        app,  # Pass app instance directly instead of string
         host=args.host,
         port=args.port,
         reload=args.reload,
-        workers=args.workers if not args.reload else 1,
-        log_level=config.LOG_LEVEL.lower()
+        log_level=args.log_level,
     )
 
 
