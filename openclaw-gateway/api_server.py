@@ -333,9 +333,15 @@ async def chat_completions(
             )
         
         # Non-streaming response
-        response = await client.generate_content(prompt, files=files, model=gemini_model)
+        logger.debug(f"Calling Gemini API with model={gemini_model}, prompt_len={len(prompt)}, files={len(files)}")
+        try:
+            response = await client.generate_content(prompt, files=files, model=gemini_model)
+        except Exception as e:
+            logger.error(f"Gemini API error: {type(e).__name__}: {e}")
+            raise
         
         if not response or not hasattr(response, 'text'):
+            logger.error(f"Empty or invalid response from Gemini: {response}")
             raise HTTPException(status_code=500, detail="Empty response from Gemini")
         
         # Extract thinking if present
@@ -372,13 +378,18 @@ async def chat_completions(
         raise
     except Exception as e:
         error_msg = str(e)
-        logger.error(f"Error in chat completions: {error_msg}")
+        logger.error(f"Error in chat completions: {error_msg}", exc_info=True)
         
         # Provide more helpful error messages
-        if "403" in error_msg or "forbidden" in error_msg.lower():
+        if "silently aborted" in error_msg.lower():
+            raise HTTPException(
+                status_code=500,
+                detail="Gemini API request failed. This may be due to: invalid content, rate limiting, or authentication issues. Check server logs for details."
+            )
+        elif "403" in error_msg or "forbidden" in error_msg.lower():
             raise HTTPException(
                 status_code=400, 
-                detail=f"Image URL access denied (HTTP 403). The image host may be blocking requests. Try using a different image URL or base64 encoding: {error_msg}"
+                detail=f"Image URL access denied (HTTP 403). The image host may be blocking requests. Try using a different image URL or base64 encoding."
             )
         elif "404" in error_msg:
             raise HTTPException(status_code=400, detail=f"Image not found (HTTP 404): {error_msg}")
