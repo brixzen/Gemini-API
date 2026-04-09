@@ -253,9 +253,6 @@ async def chat_completions(
     await verify_bearer_token(authorization)
     
     try:
-        # Convert OpenAI request to internal format
-        internal_request = OpenAIAdapter.openai_to_internal(request)
-        
         # Get Gemini client
         client = await manager.get_client(x_openclaw_agent_id)
         
@@ -266,12 +263,12 @@ async def chat_completions(
         response_id = f"chatcmpl-{uuid.uuid4().hex[:16]}"
         created_timestamp = int(datetime.now().timestamp())
         
-        # Process inputs
-        input_processor = InputProcessor()
-        prompt, files = await input_processor.process_request(internal_request)
+        # Convert OpenAI request directly to Gemini format
+        # This bypasses InputProcessor and passes URLs/BytesIO directly to Gemini client
+        prompt, files = OpenAIAdapter.openai_to_gemini_files(request)
         
-        logger.debug(f"Processed prompt length: {len(prompt) if prompt else 0}")
-        logger.debug(f"Processed files count: {len(files)}")
+        logger.debug(f"Prompt length: {len(prompt) if prompt else 0}")
+        logger.debug(f"Files count: {len(files)}")
         
         if not prompt:
             raise HTTPException(status_code=400, detail="Empty prompt")

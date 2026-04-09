@@ -2,7 +2,8 @@
 
 import base64
 import re
-from typing import List, Tuple, Optional, Dict, Any
+import io
+from typing import List, Tuple, Optional, Dict, Any, Union
 from pathlib import Path
 
 try:
@@ -84,6 +85,41 @@ class OpenAIAdapter:
         prompt = "\n\n".join(prompt_parts)
         
         return prompt, files
+    
+    @staticmethod
+    def openai_to_gemini_files(request: ChatCompletionRequest) -> Tuple[str, List[Union[str, io.BytesIO]]]:
+        """
+        Convert OpenAI ChatCompletionRequest directly to Gemini format
+        
+        Returns:
+            Tuple of (prompt_text, files_for_gemini)
+            where files_for_gemini can be URLs (str) or BytesIO objects
+        """
+        # Convert messages to prompt
+        prompt, files = OpenAIAdapter.messages_to_prompt(request.messages)
+        
+        print(f"[DEBUG] Extracted prompt: {prompt[:100] if prompt else 'None'}...")
+        print(f"[DEBUG] Extracted files count: {len(files)}")
+        
+        # Convert files to Gemini format
+        gemini_files = []
+        for i, f in enumerate(files):
+            if isinstance(f, str):
+                # URL - pass directly to Gemini client (it will download with auth)
+                print(f"[DEBUG] File {i}: URL - {f[:50]}...")
+                gemini_files.append(f)
+            elif isinstance(f, dict):
+                # Base64 - decode and pass as BytesIO
+                print(f"[DEBUG] File {i}: Base64 - mime={f.get('mime_type')}, data_len={len(f.get('data', ''))}")
+                try:
+                    image_bytes = base64.b64decode(f["data"])
+                    gemini_files.append(io.BytesIO(image_bytes))
+                    print(f"[DEBUG] File {i}: Decoded to {len(image_bytes)} bytes")
+                except Exception as e:
+                    print(f"[DEBUG] File {i}: Failed to decode - {e}")
+        
+        print(f"[DEBUG] Created {len(gemini_files)} Gemini files")
+        return prompt, gemini_files
     
     @staticmethod
     def openai_to_internal(request: ChatCompletionRequest) -> ResponseRequest:
