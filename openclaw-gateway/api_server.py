@@ -31,7 +31,7 @@ try:
     from .config import config
     from .models import ResponseRequest
     from .models.openai_models import (
-        ChatCompletionRequest, ChatCompletionResponse, ChatCompletionChoice,
+        ChatMessage, ChatCompletionRequest, ChatCompletionResponse, ChatCompletionChoice,
         ChatCompletionChunk, ChatCompletionUsage, CompletionRequest, ModelList, ModelInfo
     )
     from .handlers import InputProcessor, ModelRouter, SessionManager, OutputHandler
@@ -44,7 +44,7 @@ except ImportError:
     from config import config
     from models import ResponseRequest
     from models.openai_models import (
-        ChatCompletionRequest, ChatCompletionResponse, ChatCompletionChoice,
+        ChatMessage, ChatCompletionRequest, ChatCompletionResponse, ChatCompletionChoice,
         ChatCompletionChunk, ChatCompletionUsage, CompletionRequest, ModelList, ModelInfo
     )
     from handlers import InputProcessor, ModelRouter, SessionManager, OutputHandler

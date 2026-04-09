@@ -7,14 +7,14 @@ from pathlib import Path
 
 try:
     from ..models.openai_models import ChatMessage, ChatCompletionRequest
-    from ..models.requests import ResponseRequest, InputItem
+    from ..models.requests import ResponseRequest, MessageItem, InputImageItem, InputFileItem, ImageSource
 except ImportError:
     import sys
     current_dir = Path(__file__).parent.parent
     if str(current_dir) not in sys.path:
         sys.path.insert(0, str(current_dir))
     from models.openai_models import ChatMessage, ChatCompletionRequest
-    from models.requests import ResponseRequest, InputItem
+    from models.requests import ResponseRequest, MessageItem, InputImageItem, InputFileItem, ImageSource
 
 
 class OpenAIAdapter:
@@ -97,19 +97,23 @@ class OpenAIAdapter:
         
         # Add text
         if prompt:
-            input_items.append(InputItem(type="text", text=prompt))
+            input_items.append(MessageItem(type="message", role="user", content=prompt))
         
         # Add files
         for file in files:
             if isinstance(file, str):
-                # URL
-                input_items.append(InputItem(type="image_url", image_url=file))
+                # URL - create InputImageItem
+                input_items.append(InputImageItem(
+                    source=ImageSource(type="url", url=file)
+                ))
             elif isinstance(file, dict):
-                # Base64 image
-                input_items.append(InputItem(
-                    type="image_base64",
-                    image_base64=file["data"],
-                    mime_type=file.get("mime_type", "image/jpeg")
+                # Base64 image - create InputImageItem
+                input_items.append(InputImageItem(
+                    source=ImageSource(
+                        type="base64",
+                        data=file["data"],
+                        media_type=file.get("mime_type", "image/jpeg")
+                    )
                 ))
         
         # Create internal request
