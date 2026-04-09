@@ -13,6 +13,9 @@ aiohttp>=3.10.0
 # File handling
 aiofiles>=23.0.0
 
+# Optional: For testing image generation
+# pillow>=10.0.0
+
 # Already included in parent gemini-webapi
 # curl-cffi~=0.15.0
 # loguru~=0.7.3
