@@ -1,6 +1,14 @@
 """Request and response models for the API"""
 
-from .request_models import ResponseRequest, InputItem
+from .requests import (
+    ResponseRequest,
+    InputItem,
+    MessageItem,
+    InputImageItem,
+    InputFileItem,
+    ImageSource,
+    FileSource
+)
 from .openai_models import (
     ChatMessage,
     ChatCompletionRequest,
@@ -17,6 +25,11 @@ from .openai_models import (
 __all__ = [
     "ResponseRequest",
     "InputItem",
+    "MessageItem",
+    "InputImageItem",
+    "InputFileItem",
+    "ImageSource",
+    "FileSource",
     "ChatMessage",
     "ChatCompletionRequest",
     "ChatCompletionResponse",

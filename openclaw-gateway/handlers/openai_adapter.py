@@ -7,14 +7,14 @@ from pathlib import Path
 
 try:
     from ..models.openai_models import ChatMessage, ChatCompletionRequest
-    from ..models.request_models import ResponseRequest, InputItem
+    from ..models.requests import ResponseRequest, InputItem
 except ImportError:
     import sys
     current_dir = Path(__file__).parent.parent
     if str(current_dir) not in sys.path:
         sys.path.insert(0, str(current_dir))
     from models.openai_models import ChatMessage, ChatCompletionRequest
-    from models.request_models import ResponseRequest, InputItem
+    from models.requests import ResponseRequest, InputItem
 
 
 class OpenAIAdapter:
