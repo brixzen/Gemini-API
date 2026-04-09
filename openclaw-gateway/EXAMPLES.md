@@ -15,7 +15,7 @@ docker-compose up -d
 ## 1. Simple Text Query
 
 ```bash
-curl -X POST http://localhost:18789/v1/responses \
+curl -X POST http://localhost:18080/v1/responses \
   -H "Content-Type: application/json" \
   -d '{
     "model": "gemini-3-flash",
@@ -26,7 +26,7 @@ curl -X POST http://localhost:18789/v1/responses \
 ## 2. Text Query with Specific Model
 
 ```bash
-curl -X POST http://localhost:18789/v1/responses \
+curl -X POST http://localhost:18080/v1/responses \
   -H "Content-Type: application/json" \
   -d '{
     "model": "gemini-3-pro",
@@ -37,7 +37,7 @@ curl -X POST http://localhost:18789/v1/responses \
 ## 3. Thinking Model
 
 ```bash
-curl -X POST http://localhost:18789/v1/responses \
+curl -X POST http://localhost:18080/v1/responses \
   -H "Content-Type: application/json" \
   -d '{
     "model": "gemini-3-flash-thinking",
@@ -48,7 +48,7 @@ curl -X POST http://localhost:18789/v1/responses \
 ## 4. Image Analysis from URL
 
 ```bash
-curl -X POST http://localhost:18789/v1/responses \
+curl -X POST http://localhost:18080/v1/responses \
   -H "Content-Type: application/json" \
   -d '{
     "model": "gemini-3-flash",
@@ -75,7 +75,7 @@ curl -X POST http://localhost:18789/v1/responses \
 # First, encode an image
 IMAGE_BASE64=$(base64 -w0 your_image.jpg)
 
-curl -X POST http://localhost:18789/v1/responses \
+curl -X POST http://localhost:18080/v1/responses \
   -H "Content-Type: application/json" \
   -d '{
     "model": "gemini-3-pro",
@@ -103,7 +103,7 @@ curl -X POST http://localhost:18789/v1/responses \
 # Encode PDF
 PDF_BASE64=$(base64 -w0 document.pdf)
 
-curl -X POST http://localhost:18789/v1/responses \
+curl -X POST http://localhost:18080/v1/responses \
   -H "Content-Type: application/json" \
   -d '{
     "model": "gemini-3-pro-plus",
@@ -132,7 +132,7 @@ curl -X POST http://localhost:18789/v1/responses \
 IMAGE_BASE64=$(base64 -w0 chart.png)
 PDF_BASE64=$(base64 -w0 report.pdf)
 
-curl -X POST http://localhost:18789/v1/responses \
+curl -X POST http://localhost:18080/v1/responses \
   -H "Content-Type: application/json" \
   -d '{
     "model": "gemini-3-pro",
@@ -166,7 +166,7 @@ curl -X POST http://localhost:18789/v1/responses \
 ## 8. Streaming Response
 
 ```bash
-curl -N -X POST http://localhost:18789/v1/responses \
+curl -N -X POST http://localhost:18080/v1/responses \
   -H "Content-Type: application/json" \
   -d '{
     "model": "gemini-3-flash",
@@ -178,7 +178,7 @@ curl -N -X POST http://localhost:18789/v1/responses \
 ## 9. Streaming with Thinking Model
 
 ```bash
-curl -N -X POST http://localhost:18789/v1/responses \
+curl -N -X POST http://localhost:18080/v1/responses \
   -H "Content-Type: application/json" \
   -d '{
     "model": "gemini-3-flash-thinking-plus",
@@ -191,7 +191,7 @@ curl -N -X POST http://localhost:18789/v1/responses \
 
 ```bash
 # First message
-RESPONSE=$(curl -s -X POST http://localhost:18789/v1/responses \
+RESPONSE=$(curl -s -X POST http://localhost:18080/v1/responses \
   -H "Content-Type: application/json" \
   -d '{
     "model": "gemini-3-pro",
@@ -204,7 +204,7 @@ RESPONSE_ID=$(echo $RESPONSE | jq -r '.id')
 echo "Response ID: $RESPONSE_ID"
 
 # Follow-up message using previous_response_id
-curl -X POST http://localhost:18789/v1/responses \
+curl -X POST http://localhost:18080/v1/responses \
   -H "Content-Type: application/json" \
   -d '{
     "model": "gemini-3-pro",
@@ -217,7 +217,7 @@ curl -X POST http://localhost:18789/v1/responses \
 ## 11. Image Generation
 
 ```bash
-curl -X POST http://localhost:18789/v1/responses \
+curl -X POST http://localhost:18080/v1/responses \
   -H "Content-Type: application/json" \
   -d '{
     "model": "gemini-3-pro",
@@ -231,7 +231,7 @@ curl -X POST http://localhost:18789/v1/responses \
 # Set bearer token in .env
 # API_BEARER_TOKEN=my_secret_token
 
-curl -X POST http://localhost:18789/v1/responses \
+curl -X POST http://localhost:18080/v1/responses \
   -H "Authorization: Bearer my_secret_token" \
   -H "Content-Type: application/json" \
   -d '{
@@ -244,7 +244,7 @@ curl -X POST http://localhost:18789/v1/responses \
 
 ```bash
 # Agent 1
-curl -X POST http://localhost:18789/v1/responses \
+curl -X POST http://localhost:18080/v1/responses \
   -H "x-openclaw-agent-id: agent1" \
   -H "Content-Type: application/json" \
   -d '{
@@ -253,7 +253,7 @@ curl -X POST http://localhost:18789/v1/responses \
   }' | jq
 
 # Agent 2
-curl -X POST http://localhost:18789/v1/responses \
+curl -X POST http://localhost:18080/v1/responses \
   -H "x-openclaw-agent-id: agent2" \
   -H "Content-Type: application/json" \
   -d '{
@@ -265,14 +265,14 @@ curl -X POST http://localhost:18789/v1/responses \
 ## 14. List Available Models
 
 ```bash
-curl -X GET http://localhost:18789/v1/models \
+curl -X GET http://localhost:18080/v1/models \
   -H "Content-Type: application/json" | jq
 ```
 
 ## 15. Health Check
 
 ```bash
-curl -X GET http://localhost:18789/health | jq
+curl -X GET http://localhost:18080/health | jq
 ```
 
 ## Python Examples
@@ -283,7 +283,7 @@ curl -X GET http://localhost:18789/health | jq
 import requests
 
 response = requests.post(
-    "http://localhost:18789/v1/responses",
+    "http://localhost:18080/v1/responses",
     json={
         "model": "gemini-3-pro",
         "input": "What is the meaning of life?"
@@ -304,7 +304,7 @@ with open("image.jpg", "rb") as f:
     image_data = base64.b64encode(f.read()).decode()
 
 response = requests.post(
-    "http://localhost:18789/v1/responses",
+    "http://localhost:18080/v1/responses",
     json={
         "model": "gemini-3-flash",
         "input": [
@@ -335,7 +335,7 @@ import requests
 import json
 
 response = requests.post(
-    "http://localhost:18789/v1/responses",
+    "http://localhost:18080/v1/responses",
     json={
         "model": "gemini-3-flash",
         "stream": True,
@@ -368,7 +368,7 @@ print()
 ### Simple Request
 
 ```javascript
-const response = await fetch('http://localhost:18789/v1/responses', {
+const response = await fetch('http://localhost:18080/v1/responses', {
   method: 'POST',
   headers: {
     'Content-Type': 'application/json',
@@ -386,7 +386,7 @@ console.log(data.choices[0].message.content);
 ### Streaming
 
 ```javascript
-const response = await fetch('http://localhost:18789/v1/responses', {
+const response = await fetch('http://localhost:18080/v1/responses', {
   method: 'POST',
   headers: {
     'Content-Type': 'application/json',
@@ -442,11 +442,13 @@ console.log();
 ### Base64 Encoding
 
 On macOS/Linux, use `-w0` to avoid line wrapping:
+
 ```bash
 base64 -w0 file.jpg
 ```
 
 On macOS without `-w0` support:
+
 ```bash
 base64 -i file.jpg | tr -d '\n'
 ```
@@ -454,6 +456,7 @@ base64 -i file.jpg | tr -d '\n'
 ### Large Files
 
 For files larger than limits, increase in `.env`:
+
 ```bash
 MAX_FILE_SIZE_MB=200
 MAX_IMAGE_SIZE_MB=100
@@ -462,6 +465,7 @@ MAX_IMAGE_SIZE_MB=100
 ### Streaming Not Working
 
 Ensure you use `-N` flag with curl:
+
 ```bash
 curl -N -X POST ...
 ```

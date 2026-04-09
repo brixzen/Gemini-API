@@ -16,6 +16,7 @@ cd ~/Gemini-API/openclaw-gateway
 ```
 
 This will:
+
 - ✅ Create a Python virtual environment (`venv/`)
 - ✅ Install parent Gemini-API dependencies
 - ✅ Install gateway dependencies
@@ -55,10 +56,11 @@ python api_server.py
 ### Step 4: Test
 
 ```bash
-curl http://localhost:18789/health
+curl http://localhost:18080/health
 ```
 
 You should see:
+
 ```json
 {"status":"ok","service":"gemini-openclaw-gateway","version":"1.0.0"}
 ```
@@ -68,11 +70,13 @@ You should see:
 ## What Changed
 
 ### Before (didn't work on Ubuntu/Debian)
+
 ```bash
 pip install -r requirements.txt  # ❌ Error: externally-managed-environment
 ```
 
 ### After (works everywhere)
+
 ```bash
 ./install.sh  # ✅ Creates venv automatically
 ```
@@ -113,7 +117,7 @@ python api_server.py --reload
 ### Production Mode
 
 ```bash
-./run.sh --host 0.0.0.0 --port 18789
+./run.sh --host 0.0.0.0 --port 18080
 ```
 
 ### With Docker (no venv needed)
@@ -129,6 +133,7 @@ docker-compose up -d
 ### "venv not found"
 
 Run the installer:
+
 ```bash
 ./install.sh
 ```
@@ -136,6 +141,7 @@ Run the installer:
 ### "Permission denied: ./install.sh"
 
 Make it executable:
+
 ```bash
 chmod +x install.sh run.sh
 ```
@@ -147,11 +153,13 @@ Make sure you're using the updated `install.sh` script. If you see the error, th
 ### Import errors when running
 
 Make sure venv is activated:
+
 ```bash
 source venv/bin/activate
 ```
 
 Or use the run script:
+
 ```bash
 ./run.sh
 ```
@@ -184,7 +192,7 @@ nano .env
 
 # In another terminal:
 # 4. Test
-curl -X POST http://localhost:18789/v1/responses \
+curl -X POST http://localhost:18080/v1/responses \
   -H "Content-Type: application/json" \
   -d '{"model": "gemini-3-pro", "input": "Hello!"}'
 

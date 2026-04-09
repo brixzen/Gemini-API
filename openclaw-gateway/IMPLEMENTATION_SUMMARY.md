@@ -48,6 +48,7 @@ openclaw-gateway/
 ## 🎯 Implemented Features
 
 ### ✅ Core API
+
 - [x] FastAPI server with async support
 - [x] `/health` endpoint
 - [x] `/v1/models` endpoint (OpenClaw-compatible)
@@ -57,6 +58,7 @@ openclaw-gateway/
 - [x] Multi-agent support via `x-openclaw-agent-id` header
 
 ### ✅ Multimodal Input Support
+
 - [x] Text input (string or message items)
 - [x] Image input from URL
 - [x] Image input from base64
@@ -66,6 +68,7 @@ openclaw-gateway/
 - [x] Supported file types: PDF, TXT, MD, HTML, CSV, JSON, DOCX, XLSX, PPTX
 
 ### ✅ Model Support
+
 - [x] All 9 Gemini model variants:
   - `gemini-3-flash` (Basic)
   - `gemini-3-pro` (Basic)
@@ -81,6 +84,7 @@ openclaw-gateway/
 - [x] Fallback to default model
 
 ### ✅ Streaming Support
+
 - [x] Server-Sent Events (SSE) streaming
 - [x] Text delta streaming
 - [x] Thought process streaming (thinking models)
@@ -91,6 +95,7 @@ openclaw-gateway/
 - [x] `[DONE]` event
 
 ### ✅ Session Management
+
 - [x] Session continuity via `previous_response_id`
 - [x] User-based session routing
 - [x] Session metadata storage
@@ -98,6 +103,7 @@ openclaw-gateway/
 - [x] Multi-turn conversations
 
 ### ✅ Output Handling
+
 - [x] OpenClaw-compatible response format
 - [x] Generated images in response
 - [x] Generated videos in response
@@ -107,6 +113,7 @@ openclaw-gateway/
 - [x] Multiple response candidates support
 
 ### ✅ Security Features
+
 - [x] URL validation (HTTP/HTTPS only)
 - [x] Private IP blocking
 - [x] URL allowlist support (images and files)
@@ -118,6 +125,7 @@ openclaw-gateway/
 - [x] Bearer token authentication
 
 ### ✅ Configuration
+
 - [x] Environment variable configuration
 - [x] `.env` file support
 - [x] Cookies JSON file support
@@ -127,6 +135,7 @@ openclaw-gateway/
 - [x] Logging levels
 
 ### ✅ Deployment
+
 - [x] Standalone Python server
 - [x] Docker support
 - [x] Docker Compose configuration
@@ -135,6 +144,7 @@ openclaw-gateway/
 - [x] Auto-reload for development
 
 ### ✅ Documentation
+
 - [x] Comprehensive README
 - [x] Quick start guide
 - [x] Usage examples (15+ examples)
@@ -248,7 +258,7 @@ openclaw-gateway/
 ### Option 1: Standalone Python
 
 ```bash
-python api_server.py --host 0.0.0.0 --port 18789
+python api_server.py --host 0.0.0.0 --port 18080
 ```
 
 **Pros**: Simple, direct control  
@@ -258,7 +268,7 @@ python api_server.py --host 0.0.0.0 --port 18789
 
 ```bash
 docker build -t gemini-gateway .
-docker run -p 18789:18789 gemini-gateway
+docker run -p 18080:18080 gemini-gateway
 ```
 
 **Pros**: Isolated environment  
@@ -279,7 +289,7 @@ docker-compose up -d
 gunicorn openclaw-gateway.api_server:app \
   -w 4 \
   -k uvicorn.workers.UvicornWorker \
-  --bind 0.0.0.0:18789
+  --bind 0.0.0.0:18080
 ```
 
 **Pros**: Production-ready, multi-worker  
@@ -430,12 +440,14 @@ gunicorn openclaw-gateway.api_server:app \
 All planned features have been implemented, tested against the actual Gemini-API codebase, and documented comprehensively. The gateway provides full OpenClaw compatibility with support for all 9 Gemini model variants and complete multimodal capabilities.
 
 **Ready for**:
+
 - Development testing
 - OpenClaw integration
 - Docker deployment
 - Production use (with appropriate security measures)
 
 **Next Steps**:
+
 1. Test with actual Gemini cookies
 2. Integrate with OpenClaw agent
 3. Deploy to production environment

@@ -28,7 +28,7 @@ GEMINI_COOKIES_JSON=$(pwd)/cookies.json
 
 # Server Configuration
 API_HOST=0.0.0.0
-API_PORT=18789
+API_PORT=18080
 LOG_LEVEL=INFO
 EOF
         echo "✅ Created .env file"

@@ -19,7 +19,7 @@ The script will:
 
 ## Step 2: Get Gemini Cookies
 
-1. Open https://gemini.google.com in your browser
+1. Open <https://gemini.google.com> in your browser
 2. Log in with your Google account
 3. Press **F12** to open Developer Tools
 4. Go to **Network** tab
@@ -70,7 +70,7 @@ You should see:
 INFO:     Started server process
 INFO:     Waiting for application startup.
 INFO:     Application startup complete.
-INFO:     Uvicorn running on http://0.0.0.0:18789
+INFO:     Uvicorn running on http://0.0.0.0:18080
 ```
 
 ## Step 5: Test
@@ -79,10 +79,10 @@ Open a new terminal and test:
 
 ```bash
 # Health check
-curl http://localhost:18789/health
+curl http://localhost:18080/health
 
 # Simple query
-curl -X POST http://localhost:18789/v1/responses \
+curl -X POST http://localhost:18080/v1/responses \
   -H "Content-Type: application/json" \
   -d '{
     "model": "gemini-3-flash",
@@ -99,7 +99,7 @@ Add to `~/.openclaw/openclaw.json`:
   "providers": {
     "gemini": {
       "type": "openai",
-      "baseURL": "http://localhost:18789/v1",
+      "baseURL": "http://localhost:18080/v1",
       "apiKey": "dummy"
     }
   },
@@ -172,7 +172,7 @@ docker-compose up -d
 docker-compose logs -f
 
 # Test
-curl http://localhost:18789/health
+curl http://localhost:18080/health
 ```
 
 ## Development Mode
