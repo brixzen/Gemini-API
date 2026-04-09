@@ -1,9 +1,20 @@
 """
 Configuration management for Gemini-OpenClaw Gateway
 """
+
 import os
 from typing import List, Optional
 from pathlib import Path
+
+# Load .env file if it exists
+try:
+    from dotenv import load_dotenv
+    env_path = Path(__file__).parent / ".env"
+    if env_path.exists():
+        load_dotenv(env_path)
+except ImportError:
+    # python-dotenv not installed, will use system environment variables
+    pass
 
 
 class Config:
