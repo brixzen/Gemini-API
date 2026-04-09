@@ -7,6 +7,18 @@ import os
 import json
 from pathlib import Path
 
+# Load .env file first
+try:
+    from dotenv import load_dotenv
+    env_file = Path.cwd() / ".env"
+    if env_file.exists():
+        load_dotenv(env_file, override=True)
+        print(f"📄 Loaded .env from: {env_file}")
+    else:
+        print(f"⚠️  No .env file found at: {env_file}")
+except ImportError:
+    print("⚠️  python-dotenv not installed, using system environment only")
+
 print("=" * 60)
 print("Cookies Configuration Check")
 print("=" * 60)
