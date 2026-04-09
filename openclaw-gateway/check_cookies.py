@@ -88,11 +88,19 @@ if cookies_json:
             print("✅ cookies.json is valid JSON")
             print(f"Keys in file: {list(cookies_data.keys())}")
             
+            # Support both formats: flat and nested
+            cookies = cookies_data.get("cookies", cookies_data)
+            if cookies != cookies_data:
+                print(f"Format: Nested (cookies inside 'cookies' key)")
+                print(f"Cookies keys: {list(cookies.keys())}")
+            else:
+                print(f"Format: Flat (cookies at root level)")
+            
             # Check for required cookies
             required_cookies = ["__Secure-1PSID", "__Secure-1PSIDTS"]
             for cookie in required_cookies:
-                if cookie in cookies_data:
-                    value = cookies_data[cookie]
+                if cookie in cookies:
+                    value = cookies[cookie]
                     print(f"✅ {cookie}: {value[:15]}... (length: {len(value)})")
                 else:
                     print(f"❌ {cookie}: MISSING")
