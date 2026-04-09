@@ -9,9 +9,24 @@ from pathlib import Path
 # Load .env file if it exists
 try:
     from dotenv import load_dotenv
-    env_path = Path(__file__).parent / ".env"
-    if env_path.exists():
-        load_dotenv(env_path)
+    # Try multiple possible locations for .env file
+    possible_paths = [
+        Path(__file__).parent / ".env",  # Same directory as config.py
+        Path.cwd() / ".env",              # Current working directory
+        Path(__file__).parent.parent / "openclaw-gateway" / ".env",  # Parent project
+    ]
+    
+    loaded = False
+    for env_path in possible_paths:
+        if env_path.exists():
+            load_dotenv(env_path, override=True)
+            loaded = True
+            break
+    
+    if not loaded:
+        # Try loading from current directory without path
+        load_dotenv(override=True)
+        
 except ImportError:
     # python-dotenv not installed, will use system environment variables
     pass
