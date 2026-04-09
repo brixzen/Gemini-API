@@ -4,6 +4,7 @@ OpenClaw-compatible HTTP API endpoint for Google Gemini with **full multimodal s
 
 ## Features
 
+✅ **OpenAI-compatible `/v1/chat/completions` endpoint**  
 ✅ **OpenClaw `/v1/responses` API compatibility**  
 ✅ **All 9 Gemini model variants** (Basic, Plus, Advanced tiers)  
 ✅ **Multimodal inputs**: Images (URL/base64), PDFs, documents  
@@ -68,7 +69,15 @@ GET /health
 GET /v1/models
 ```
 
-### Create Response
+### Chat Completions (OpenAI-compatible)
+
+```bash
+POST /v1/chat/completions
+```
+
+This endpoint is compatible with OpenAI's chat completions API format, making it easy to integrate with tools like OpenClaw, LangChain, and other OpenAI-compatible clients.
+
+### Create Response (OpenClaw format)
 
 ```bash
 POST /v1/responses
@@ -230,12 +239,12 @@ curl -N -X POST http://localhost:18080/v1/responses \
 
 ```bash
 # First request
-RESPONSE=$(curl -X POST http://localhost:18080/v1/responses \
+RESPONSE=$(curl -X POST http://localhost:18080/v1/chat/completions \
   -H "Content-Type: application/json" \
   -d '{
     "model": "gemini-3-pro",
     "input": "What is the capital of France?"
-  }')
+  }' | jq)
 
 RESPONSE_ID=$(echo $RESPONSE | jq -r '.id')
 

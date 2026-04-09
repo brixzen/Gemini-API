@@ -30,7 +30,12 @@ from gemini_webapi.constants import Model
 try:
     from .config import config
     from .models import ResponseRequest
+    from .models.openai_models import (
+        ChatCompletionRequest, ChatCompletionResponse, ChatCompletionChoice,
+        ChatCompletionChunk, ChatCompletionUsage, CompletionRequest, ModelList, ModelInfo
+    )
     from .handlers import InputProcessor, ModelRouter, SessionManager, OutputHandler
+    from .handlers.openai_adapter import OpenAIAdapter
 except ImportError:
     # Add current directory to path for absolute imports
     current_dir = Path(__file__).parent
@@ -38,7 +43,12 @@ except ImportError:
         sys.path.insert(0, str(current_dir))
     from config import config
     from models import ResponseRequest
+    from models.openai_models import (
+        ChatCompletionRequest, ChatCompletionResponse, ChatCompletionChoice,
+        ChatCompletionChunk, ChatCompletionUsage, CompletionRequest, ModelList, ModelInfo
+    )
     from handlers import InputProcessor, ModelRouter, SessionManager, OutputHandler
+    from handlers.openai_adapter import OpenAIAdapter
 
 
 # ============================================================================
@@ -186,7 +196,7 @@ async def list_models(
     authorization: Optional[str] = Header(None),
     x_openclaw_agent_id: str = Header("main", alias="x-openclaw-agent-id")
 ):
-    """List available models (OpenClaw-compatible)"""
+    """List available models (OpenAI-compatible)"""
     await verify_bearer_token(authorization)
     
     try:
@@ -196,32 +206,223 @@ async def list_models(
         gemini_models = client.list_models()
         
         model_list = []
+        created_timestamp = int(datetime.now().timestamp())
         
         # Add all supported models
         for model_name in ModelRouter.get_all_models():
-            model_list.append({
-                "id": model_name,
-                "object": "model",
-                "created": int(datetime.now().timestamp()),
-                "owned_by": "google-gemini"
-            })
+            model_list.append(ModelInfo(
+                id=model_name,
+                created=created_timestamp,
+                owned_by="google-gemini"
+            ))
         
         # Add dynamic models from Gemini if available
         if gemini_models:
             for m in gemini_models:
                 if m.is_available:
-                    model_list.append({
-                        "id": m.model_name or m.display_name,
-                        "object": "model",
-                        "created": int(datetime.now().timestamp()),
-                        "owned_by": "google-gemini",
-                        "description": m.description
-                    })
+                    model_list.append(ModelInfo(
+                        id=m.model_name or m.display_name,
+                        created=created_timestamp,
+                        owned_by="google-gemini"
+                    ))
         
-        return {"object": "list", "data": model_list}
+        return ModelList(data=model_list)
     
     except Exception as e:
         logger.error(f"Error listing models: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/v1/chat/completions")
+async def chat_completions(
+    request: ChatCompletionRequest,
+    authorization: Optional[str] = Header(None),
+    x_openclaw_agent_id: str = Header("main", alias="x-openclaw-agent-id")
+):
+    """
+    OpenAI-compatible chat completions endpoint
+    
+    Fully compatible with OpenAI's Chat Completions API.
+    Supports:
+    - Multi-turn conversations via messages array
+    - System/user/assistant roles
+    - Streaming responses
+    - Multi-modal inputs (text + images)
+    - Temperature and other parameters
+    """
+    await verify_bearer_token(authorization)
+    
+    try:
+        # Convert OpenAI request to internal format
+        internal_request = OpenAIAdapter.openai_to_internal(request)
+        
+        # Get Gemini client
+        client = await manager.get_client(x_openclaw_agent_id)
+        
+        # Route to correct model
+        gemini_model = ModelRouter.get_model(request.model)
+        
+        # Generate response ID
+        response_id = f"chatcmpl-{uuid.uuid4().hex[:16]}"
+        created_timestamp = int(datetime.now().timestamp())
+        
+        # Process inputs
+        input_processor = InputProcessor()
+        prompt, files = await input_processor.process_request(internal_request)
+        
+        if not prompt:
+            raise HTTPException(status_code=400, detail="Empty prompt")
+        
+        # Handle streaming
+        if request.stream:
+            async def stream_generator():
+                try:
+                    stream = client.generate_content_stream(
+                        prompt,
+                        files=files,
+                        model=gemini_model
+                    )
+                    
+                    chunk_index = 0
+                    async for chunk in stream:
+                        if chunk and hasattr(chunk, 'text') and chunk.text:
+                            # Create OpenAI-format chunk
+                            chunk_data = ChatCompletionChunk(
+                                id=response_id,
+                                created=created_timestamp,
+                                model=request.model,
+                                choices=[{
+                                    "index": 0,
+                                    "delta": {"role": "assistant", "content": chunk.text},
+                                    "finish_reason": None
+                                }]
+                            )
+                            yield f"data: {chunk_data.model_dump_json()}\n\n"
+                            chunk_index += 1
+                    
+                    # Send final chunk
+                    final_chunk = ChatCompletionChunk(
+                        id=response_id,
+                        created=created_timestamp,
+                        model=request.model,
+                        choices=[{
+                            "index": 0,
+                            "delta": {},
+                            "finish_reason": "stop"
+                        }]
+                    )
+                    yield f"data: {final_chunk.model_dump_json()}\n\n"
+                    yield "data: [DONE]\n\n"
+                    
+                except Exception as e:
+                    logger.error(f"Streaming error: {e}")
+                    error_data = {"error": {"message": str(e), "type": "server_error"}}
+                    yield f"data: {json.dumps(error_data)}\n\n"
+            
+            return StreamingResponse(
+                stream_generator(),
+                media_type="text/event-stream",
+                headers={
+                    "Cache-Control": "no-cache",
+                    "Connection": "keep-alive",
+                    "X-Accel-Buffering": "no"
+                }
+            )
+        
+        # Non-streaming response
+        response = await client.generate_content(prompt, files=files, model=gemini_model)
+        
+        if not response or not hasattr(response, 'text'):
+            raise HTTPException(status_code=500, detail="Empty response from Gemini")
+        
+        # Extract thinking if present
+        thinking, response_text = OpenAIAdapter.extract_thinking_and_response(response.text)
+        
+        # Build OpenAI response
+        completion_response = ChatCompletionResponse(
+            id=response_id,
+            created=created_timestamp,
+            model=request.model,
+            choices=[
+                ChatCompletionChoice(
+                    index=0,
+                    message=OpenAIAdapter.internal_to_openai_message(response_text),
+                    finish_reason="stop"
+                )
+            ],
+            usage=ChatCompletionUsage(
+                prompt_tokens=len(prompt.split()),  # Rough estimate
+                completion_tokens=len(response_text.split()),
+                total_tokens=len(prompt.split()) + len(response_text.split())
+            )
+        )
+        
+        return completion_response
+        
+    except AuthError as e:
+        logger.error(f"Authentication error: {e}")
+        raise HTTPException(status_code=401, detail=str(e))
+    except GeminiError as e:
+        logger.error(f"Gemini error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+    except Exception as e:
+        logger.error(f"Error in chat completions: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/v1/completions")
+async def completions(
+    request: CompletionRequest,
+    authorization: Optional[str] = Header(None),
+    x_openclaw_agent_id: str = Header("main", alias="x-openclaw-agent-id")
+):
+    """
+    OpenAI-compatible completions endpoint (legacy)
+    
+    Supports the legacy completion format with prompt parameter.
+    For new applications, use /v1/chat/completions instead.
+    """
+    await verify_bearer_token(authorization)
+    
+    try:
+        # Convert to chat format
+        prompt_text = request.prompt if isinstance(request.prompt, str) else "\n".join(request.prompt)
+        
+        # Create a simple chat request
+        chat_request = ChatCompletionRequest(
+            model=request.model,
+            messages=[{"role": "user", "content": prompt_text}],
+            temperature=request.temperature,
+            max_tokens=request.max_tokens,
+            top_p=request.top_p,
+            stream=request.stream,
+            stop=request.stop,
+            user=request.user
+        )
+        
+        # Use chat completions endpoint
+        response = await chat_completions(chat_request, authorization, x_openclaw_agent_id)
+        
+        # Convert response format if needed
+        if isinstance(response, ChatCompletionResponse):
+            # Convert to legacy completion format
+            return {
+                "id": response.id,
+                "object": "text_completion",
+                "created": response.created,
+                "model": response.model,
+                "choices": [{
+                    "text": choice.message.content,
+                    "index": choice.index,
+                    "finish_reason": choice.finish_reason
+                } for choice in response.choices],
+                "usage": response.usage.model_dump() if response.usage else None
+            }
+        
+        return response
+        
+    except Exception as e:
+        logger.error(f"Error in completions: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -232,10 +433,10 @@ async def create_response(
     x_openclaw_agent_id: str = Header("main", alias="x-openclaw-agent-id")
 ):
     """
-    OpenClaw-compatible /v1/responses endpoint
+    Generate a response from Gemini (OpenClaw-compatible)
     
     Supports:
-    - Text input (string or message items)
+    - Text input
     - Image input (URL or base64)
     - File input (PDF, documents via base64)
     - Streaming via SSE
