@@ -12,7 +12,12 @@ ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(ROOT / "src"))
 
 from gemini_webapi.types import ModelOutput
-from ..models.responses import ResponseOutput, ResponseChoice, ResponseUsage, ResponseMessage
+
+# Handle both direct execution and module import
+try:
+    from ..models.responses import ResponseOutput, ResponseChoice, ResponseUsage, ResponseMessage
+except ImportError:
+    from models.responses import ResponseOutput, ResponseChoice, ResponseUsage, ResponseMessage
 
 
 class OutputHandler:

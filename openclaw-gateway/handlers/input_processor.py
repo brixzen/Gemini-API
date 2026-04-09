@@ -8,25 +8,47 @@ from typing import List, Tuple
 ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(ROOT / "src"))
 
-from ..models.requests import (
-    ResponseRequest,
-    InputImageItem,
-    InputFileItem,
-    MessageItem,
-)
-from ..utils.file_utils import (
-    download_url_safely,
-    decode_base64_file,
-    save_temp_file,
-    get_file_extension_from_mime,
-    cleanup_temp_file,
-)
-from ..utils.validators import (
-    validate_mime_type,
-    SUPPORTED_IMAGE_TYPES,
-    SUPPORTED_FILE_TYPES,
-)
-from ..config import config
+# Handle both direct execution and module import
+try:
+    from ..models.requests import (
+        ResponseRequest,
+        InputImageItem,
+        InputFileItem,
+        MessageItem,
+    )
+    from ..utils.file_utils import (
+        download_url_safely,
+        decode_base64_file,
+        save_temp_file,
+        get_file_extension_from_mime,
+        cleanup_temp_file,
+    )
+    from ..utils.validators import (
+        validate_mime_type,
+        SUPPORTED_IMAGE_TYPES,
+        SUPPORTED_FILE_TYPES,
+    )
+    from ..config import config
+except ImportError:
+    from models.requests import (
+        ResponseRequest,
+        InputImageItem,
+        InputFileItem,
+        MessageItem,
+    )
+    from utils.file_utils import (
+        download_url_safely,
+        decode_base64_file,
+        save_temp_file,
+        get_file_extension_from_mime,
+        cleanup_temp_file,
+    )
+    from utils.validators import (
+        validate_mime_type,
+        SUPPORTED_IMAGE_TYPES,
+        SUPPORTED_FILE_TYPES,
+    )
+    from config import config
 
 
 class InputProcessor:

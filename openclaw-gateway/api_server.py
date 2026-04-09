@@ -26,9 +26,15 @@ from gemini_webapi import GeminiClient, logger, set_log_level
 from gemini_webapi.exceptions import AuthError, GeminiError
 from gemini_webapi.constants import Model
 
-from .config import config
-from .models import ResponseRequest
-from .handlers import InputProcessor, ModelRouter, SessionManager, OutputHandler
+# Handle both direct execution and module import
+try:
+    from .config import config
+    from .models import ResponseRequest
+    from .handlers import InputProcessor, ModelRouter, SessionManager, OutputHandler
+except ImportError:
+    from config import config
+    from models import ResponseRequest
+    from handlers import InputProcessor, ModelRouter, SessionManager, OutputHandler
 
 
 # ============================================================================

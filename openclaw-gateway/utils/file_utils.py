@@ -8,8 +8,13 @@ from pathlib import Path
 from typing import Tuple
 from urllib.parse import urlparse
 
-from ..config import config
-from .validators import validate_url, is_private_ip, validate_url_allowlist
+# Handle both direct execution and module import
+try:
+    from ..config import config
+    from .validators import validate_url, is_private_ip, validate_url_allowlist
+except ImportError:
+    from config import config
+    from validators import validate_url, is_private_ip, validate_url_allowlist
 
 
 class FileDownloadError(Exception):
