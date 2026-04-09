@@ -7,9 +7,15 @@ Get the Gemini-OpenClaw Gateway running in 5 minutes.
 ```bash
 cd openclaw-gateway
 
-# Install Python dependencies
-pip install -r requirements.txt
+# Run installation script (creates venv and installs dependencies)
+./install.sh
 ```
+
+The script will:
+
+- Create a Python virtual environment
+- Install all required dependencies
+- Create `.env` file from template
 
 ## Step 2: Get Gemini Cookies
 
@@ -34,6 +40,7 @@ nano .env
 ```
 
 Set these values:
+
 ```bash
 GEMINI_SECURE_1PSID=your_cookie_value_here
 GEMINI_SECURE_1PSIDTS=your_cookie_value_here
@@ -41,11 +48,24 @@ GEMINI_SECURE_1PSIDTS=your_cookie_value_here
 
 ## Step 4: Run Server
 
+**Option 1: Using the run script (recommended)**
+
 ```bash
+./run.sh
+```
+
+**Option 2: Manual activation**
+
+```bash
+# Activate virtual environment
+source venv/bin/activate
+
+# Run server
 python api_server.py
 ```
 
 You should see:
+
 ```
 INFO:     Started server process
 INFO:     Waiting for application startup.
@@ -118,16 +138,24 @@ Your cookies may have expired. Re-export them from gemini.google.com
 ### Port already in use
 
 Change port in `.env`:
+
 ```bash
 API_PORT=18790
 ```
 
 ### Import errors
 
-Make sure you're in the correct directory and installed dependencies:
+Make sure you're in the correct directory and activated the virtual environment:
+
 ```bash
 cd openclaw-gateway
-pip install -r requirements.txt
+source venv/bin/activate
+```
+
+If venv doesn't exist, run:
+
+```bash
+./install.sh
 ```
 
 ## Docker Quick Start
@@ -152,7 +180,17 @@ curl http://localhost:18789/health
 Run with auto-reload for development:
 
 ```bash
+# Activate venv first
+source venv/bin/activate
+
+# Run with auto-reload
 python api_server.py --reload
+```
+
+Or use the run script:
+
+```bash
+./run.sh --reload
 ```
 
 Changes to code will automatically restart the server.
