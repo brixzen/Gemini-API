@@ -1,37 +1,43 @@
-"""Data models for OpenClaw-compatible API"""
+"""Request and response models for the API"""
 
 from .requests import (
+    ResponseRequest,
+    InputItem,
     MessageItem,
     InputImageItem,
     InputFileItem,
     ImageSource,
-    FileSource,
-    ResponseRequest,
+    FileSource
 )
-from .responses import (
-    ResponseChoice,
-    ResponseUsage,
-    ResponseOutput,
-    ResponseDelta,
-    ResponseDone,
-    ResponseImages,
-    ResponseVideos,
-    ResponseMedia,
+from .openai_models import (
+    ChatMessage,
+    ChatCompletionRequest,
+    ChatCompletionResponse,
+    ChatCompletionChoice,
+    ChatCompletionChunk,
+    ChatCompletionUsage,
+    CompletionRequest,
+    ModelInfo,
+    ModelList,
+    ErrorResponse
 )
 
 __all__ = [
+    "ResponseRequest",
+    "InputItem",
     "MessageItem",
     "InputImageItem",
     "InputFileItem",
     "ImageSource",
     "FileSource",
-    "ResponseRequest",
-    "ResponseChoice",
-    "ResponseUsage",
-    "ResponseOutput",
-    "ResponseDelta",
-    "ResponseDone",
-    "ResponseImages",
-    "ResponseVideos",
-    "ResponseMedia",
+    "ChatMessage",
+    "ChatCompletionRequest",
+    "ChatCompletionResponse",
+    "ChatCompletionChoice",
+    "ChatCompletionChunk",
+    "ChatCompletionUsage",
+    "CompletionRequest",
+    "ModelInfo",
+    "ModelList",
+    "ErrorResponse"
 ]

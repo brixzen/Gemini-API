@@ -38,6 +38,9 @@ class ModelRouter:
         
         Returns:
             Gemini Model enum value
+            
+        Raises:
+            ValueError: If model name is not recognized
         """
         # Direct mapping
         if model_name in cls.MODEL_MAPPING:
@@ -48,8 +51,11 @@ class ModelRouter:
             if gemini_model.model_name == model_name:
                 return gemini_model
         
-        # Default to unspecified
-        return Model.UNSPECIFIED
+        # Raise error for invalid model (OpenAI API compliance)
+        available_models = ", ".join(cls.MODEL_MAPPING.keys())
+        raise ValueError(
+            f"Model '{model_name}' not found. Available models: {available_models}"
+        )
     
     @classmethod
     def get_all_models(cls) -> list:

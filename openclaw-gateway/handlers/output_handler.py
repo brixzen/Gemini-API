@@ -17,6 +17,12 @@ from gemini_webapi.types import ModelOutput
 try:
     from ..models.responses import ResponseOutput, ResponseChoice, ResponseUsage, ResponseMessage
 except ImportError:
+    import sys
+    from pathlib import Path
+    # Add parent directory to path
+    parent_dir = Path(__file__).parent.parent
+    if str(parent_dir) not in sys.path:
+        sys.path.insert(0, str(parent_dir))
     from models.responses import ResponseOutput, ResponseChoice, ResponseUsage, ResponseMessage
 
 

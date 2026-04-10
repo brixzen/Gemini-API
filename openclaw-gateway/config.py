@@ -42,7 +42,7 @@ class Config:
     
     # Server Configuration
     API_HOST: str = os.getenv("API_HOST", "0.0.0.0")
-    API_PORT: int = int(os.getenv("API_PORT", "18789"))
+    API_PORT: int = int(os.getenv("API_PORT", "18080"))
     API_WORKERS: int = int(os.getenv("API_WORKERS", "4"))
     LOG_LEVEL: str = os.getenv("LOG_LEVEL", "INFO")
     

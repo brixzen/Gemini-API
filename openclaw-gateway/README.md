@@ -4,6 +4,7 @@ OpenClaw-compatible HTTP API endpoint for Google Gemini with **full multimodal s
 
 ## Features
 
+✅ **OpenAI-compatible `/v1/chat/completions` endpoint**  
 ✅ **OpenClaw `/v1/responses` API compatibility**  
 ✅ **All 9 Gemini model variants** (Basic, Plus, Advanced tiers)  
 ✅ **Multimodal inputs**: Images (URL/base64), PDFs, documents  
@@ -47,26 +48,37 @@ GEMINI_SECURE_1PSIDTS=your_cookie_value
 python api_server.py --reload
 
 # Production mode
-python api_server.py --host 0.0.0.0 --port 18789
+python api_server.py --host 0.0.0.0 --port 18080
 ```
 
-Server will start at `http://localhost:18789`
+Server will start at `http://localhost:18080`
 
 ---
 
 ## API Endpoints
 
 ### Health Check
+
 ```bash
 GET /health
 ```
 
 ### List Models
+
 ```bash
 GET /v1/models
 ```
 
-### Create Response
+### Chat Completions (OpenAI-compatible)
+
+```bash
+POST /v1/chat/completions
+```
+
+This endpoint is compatible with OpenAI's chat completions API format, making it easy to integrate with tools like OpenClaw, LangChain, and other OpenAI-compatible clients.
+
+### Create Response (OpenClaw format)
+
 ```bash
 POST /v1/responses
 ```
@@ -95,7 +107,7 @@ POST /v1/responses
 ### Text Query
 
 ```bash
-curl -X POST http://localhost:18789/v1/responses \
+curl -X POST http://localhost:18080/v1/responses \
   -H "Content-Type: application/json" \
   -d '{
     "model": "gemini-3-pro",
@@ -106,7 +118,7 @@ curl -X POST http://localhost:18789/v1/responses \
 ### Image Analysis (URL)
 
 ```bash
-curl -X POST http://localhost:18789/v1/responses \
+curl -X POST http://localhost:18080/v1/responses \
   -H "Content-Type: application/json" \
   -d '{
     "model": "gemini-3-flash",
@@ -130,7 +142,7 @@ curl -X POST http://localhost:18789/v1/responses \
 ### Image Analysis (Base64)
 
 ```bash
-curl -X POST http://localhost:18789/v1/responses \
+curl -X POST http://localhost:18080/v1/responses \
   -H "Content-Type: application/json" \
   -d '{
     "model": "gemini-3-pro",
@@ -155,7 +167,7 @@ curl -X POST http://localhost:18789/v1/responses \
 ### PDF Analysis
 
 ```bash
-curl -X POST http://localhost:18789/v1/responses \
+curl -X POST http://localhost:18080/v1/responses \
   -H "Content-Type: application/json" \
   -d '{
     "model": "gemini-3-pro-plus",
@@ -181,7 +193,7 @@ curl -X POST http://localhost:18789/v1/responses \
 ### Multiple Files
 
 ```bash
-curl -X POST http://localhost:18789/v1/responses \
+curl -X POST http://localhost:18080/v1/responses \
   -H "Content-Type: application/json" \
   -d '{
     "model": "gemini-3-pro",
@@ -214,7 +226,7 @@ curl -X POST http://localhost:18789/v1/responses \
 ### Streaming Response
 
 ```bash
-curl -N -X POST http://localhost:18789/v1/responses \
+curl -N -X POST http://localhost:18080/v1/responses \
   -H "Content-Type: application/json" \
   -d '{
     "model": "gemini-3-flash-thinking",
@@ -227,17 +239,17 @@ curl -N -X POST http://localhost:18789/v1/responses \
 
 ```bash
 # First request
-RESPONSE=$(curl -X POST http://localhost:18789/v1/responses \
+RESPONSE=$(curl -X POST http://localhost:18080/v1/chat/completions \
   -H "Content-Type: application/json" \
   -d '{
     "model": "gemini-3-pro",
     "input": "What is the capital of France?"
-  }')
+  }' | jq)
 
 RESPONSE_ID=$(echo $RESPONSE | jq -r '.id')
 
 # Follow-up request
-curl -X POST http://localhost:18789/v1/responses \
+curl -X POST http://localhost:18080/v1/responses \
   -H "Content-Type: application/json" \
   -d '{
     "model": "gemini-3-pro",
@@ -249,7 +261,7 @@ curl -X POST http://localhost:18789/v1/responses \
 ### Image Generation
 
 ```bash
-curl -X POST http://localhost:18789/v1/responses \
+curl -X POST http://localhost:18080/v1/responses \
   -H "Content-Type: application/json" \
   -d '{
     "model": "gemini-3-pro",
@@ -270,7 +282,7 @@ Add to your OpenClaw config (`~/.openclaw/openclaw.json`):
   "providers": {
     "gemini": {
       "type": "openai",
-      "baseURL": "http://localhost:18789/v1",
+      "baseURL": "http://localhost:18080/v1",
       "apiKey": "dummy-key-not-required"
     }
   },
@@ -330,7 +342,7 @@ docker build -t gemini-openclaw-gateway -f Dockerfile ..
 # Run container
 docker run -d \
   --name gemini-gateway \
-  -p 18789:18789 \
+  -p 18080:18080 \
   -e GEMINI_SECURE_1PSID="your_cookie" \
   -e GEMINI_SECURE_1PSIDTS="your_cookie" \
   -e LOG_LEVEL=INFO \
@@ -352,7 +364,7 @@ API_BEARER_TOKEN=your_secret_token_here
 Then include in requests:
 
 ```bash
-curl -X POST http://localhost:18789/v1/responses \
+curl -X POST http://localhost:18080/v1/responses \
   -H "Authorization: Bearer your_secret_token_here" \
   -H "Content-Type: application/json" \
   -d '{"model": "gemini-3-pro", "input": "Hello"}'
@@ -388,7 +400,7 @@ FILE_URL_ALLOWLIST=docs.example.com
 | `GEMINI_SECURE_1PSIDTS` | - | **Required** Gemini cookie |
 | `GEMINI_COOKIES_JSON` | - | Path to cookies JSON file |
 | `API_HOST` | `0.0.0.0` | Server host |
-| `API_PORT` | `18789` | Server port |
+| `API_PORT` | `18080` | Server port |
 | `LOG_LEVEL` | `INFO` | Log level (DEBUG/INFO/WARNING/ERROR) |
 | `API_BEARER_TOKEN` | - | Optional bearer token for auth |
 | `ALLOWED_ORIGINS` | `*` | CORS origins (comma-separated) |
