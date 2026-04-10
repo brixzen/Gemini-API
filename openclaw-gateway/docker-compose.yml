@@ -9,26 +9,37 @@ services:
     ports:
       - "${API_PORT:-18080}:18080"
     environment:
-      - GEMINI_SECURE_1PSID=${GEMINI_SECURE_1PSID}
-      - GEMINI_SECURE_1PSIDTS=${GEMINI_SECURE_1PSIDTS}
-      - GEMINI_COOKIES_JSON=${GEMINI_COOKIES_JSON}
+      # Gemini Authentication (choose one method)
+      - GEMINI_SECURE_1PSID=${GEMINI_SECURE_1PSID:-}
+      - GEMINI_SECURE_1PSIDTS=${GEMINI_SECURE_1PSIDTS:-}
+      - GEMINI_COOKIES_JSON=${GEMINI_COOKIES_JSON:-}
+      
+      # API Configuration
       - API_HOST=0.0.0.0
       - API_PORT=18080
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
-      - API_BEARER_TOKEN=${API_BEARER_TOKEN}
+      - API_BEARER_TOKEN=${API_BEARER_TOKEN:-}
       - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-*}
+      
+      # File Size Limits
       - MAX_FILE_SIZE_MB=${MAX_FILE_SIZE_MB:-100}
       - MAX_IMAGE_SIZE_MB=${MAX_IMAGE_SIZE_MB:-50}
+      
+      # Feature Flags
       - ENABLE_URL_FETCH=${ENABLE_URL_FETCH:-true}
       - ENABLE_IMAGE_GENERATION=${ENABLE_IMAGE_GENERATION:-true}
       - ENABLE_VIDEO_GENERATION=${ENABLE_VIDEO_GENERATION:-true}
       - ENABLE_AUDIO_GENERATION=${ENABLE_AUDIO_GENERATION:-true}
     volumes:
-      - ./cookies:/app/cookies:ro
+      # Mount .env file (recommended)
+      - ./.env:/app/Gemini-API/openclaw-gateway/.env:ro
+      # Or mount cookies.json directly
+      # - ./cookies.json:/app/Gemini-API/openclaw-gateway/cookies.json:ro
+      # Temp directory for file processing
       - /tmp/gemini-gateway:/tmp/gemini-gateway
     restart: unless-stopped
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:18080/health" ]
+      test: ["CMD", "curl", "-f", "http://localhost:18080/health"]
       interval: 30s
       timeout: 10s
       retries: 3
