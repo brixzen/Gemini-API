@@ -253,6 +253,13 @@ async def chat_completions(
     await verify_bearer_token(authorization)
     
     try:
+        # Log incoming request for debugging
+        logger.info(f"Chat completion request - Model: {request.model}, Messages: {len(request.messages)}")
+        if request.messages:
+            last_msg = request.messages[-1]
+            msg_content = last_msg.get("content") if isinstance(last_msg, dict) else getattr(last_msg, "content", "")
+            logger.info(f"Last message preview: {str(msg_content)[:100]}...")
+        
         # Get Gemini client
         client = await manager.get_client(x_openclaw_agent_id)
         
