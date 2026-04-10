@@ -256,8 +256,11 @@ async def chat_completions(
         # Get Gemini client
         client = await manager.get_client(x_openclaw_agent_id)
         
-        # Route to correct model
-        gemini_model = ModelRouter.get_model(request.model)
+        # Route to correct model (raises ValueError if invalid)
+        try:
+            gemini_model = ModelRouter.get_model(request.model)
+        except ValueError as e:
+            raise HTTPException(status_code=404, detail=str(e))
         
         # Generate response ID
         response_id = f"chatcmpl-{uuid.uuid4().hex[:16]}"
