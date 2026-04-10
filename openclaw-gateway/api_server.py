@@ -290,21 +290,30 @@ async def chat_completions(
                     )
                     
                     chunk_index = 0
+                    previous_text = ""
                     async for chunk in stream:
                         if chunk and hasattr(chunk, 'text') and chunk.text:
-                            # Create OpenAI-format chunk
-                            chunk_data = ChatCompletionChunk(
-                                id=response_id,
-                                created=created_timestamp,
-                                model=request.model,
-                                choices=[{
-                                    "index": 0,
-                                    "delta": {"role": "assistant", "content": chunk.text},
-                                    "finish_reason": None
-                                }]
-                            )
-                            yield f"data: {chunk_data.model_dump_json()}\n\n"
-                            chunk_index += 1
+                            # Calculate delta (only new text since last chunk)
+                            current_text = chunk.text
+                            delta_text = current_text[len(previous_text):]
+                            previous_text = current_text
+                            
+                            # Only send if there's new content
+                            if delta_text:
+                                # Create OpenAI-format chunk with delta
+                                delta_content = {"role": "assistant", "content": delta_text} if chunk_index == 0 else {"content": delta_text}
+                                chunk_data = ChatCompletionChunk(
+                                    id=response_id,
+                                    created=created_timestamp,
+                                    model=request.model,
+                                    choices=[{
+                                        "index": 0,
+                                        "delta": delta_content,
+                                        "finish_reason": None
+                                    }]
+                                )
+                                yield f"data: {chunk_data.model_dump_json()}\n\n"
+                                chunk_index += 1
                     
                     # Send final chunk
                     final_chunk = ChatCompletionChunk(
